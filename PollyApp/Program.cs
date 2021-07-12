@@ -9,12 +9,23 @@ namespace PollyApp
 
         static void Main()
         {
-            var policy = Policy
+            var fallbackValue = "FALLBACK";
+
+            var fallback = Policy<string>
                 .Handle<Exception>()
-                .Retry(1, (exception, _) =>
+                .Fallback(fallbackValue, (result) =>
                 {
-                    Console.WriteLine($"polly retry cause of {exception.Message}");
+                    Console.WriteLine($"polly fallback cause of {result.Exception.Message}");
                 });
+
+            var retry = Policy<string>
+                .Handle<Exception>()
+                .Retry(1, (result, _) =>
+                {
+                    Console.WriteLine($"polly retry cause of {result.Exception.Message}");
+                });
+
+            var policy = Policy.Wrap(fallback, retry);
 
             try
             {
