@@ -14,11 +14,12 @@ namespace PollyApp
 
         public async Task Do()
         {
-            var fallbackValue = "FALLBACK";
-
             var fallback = Policy<string>
                 .Handle<Exception>()
-                .FallbackAsync(fallbackValue, result =>
+                .FallbackAsync(cancel =>
+                {
+                    return Task.FromResult("FALLBACK");
+                }, result =>
                 {
                     Console.WriteLine($"polly fallback cause of {result.Exception.Message}");
                     return Task.CompletedTask;
